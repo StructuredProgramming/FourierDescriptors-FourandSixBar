@@ -401,6 +401,7 @@ batch_size=128
 with open('ISEFDataset.txt', 'r') as f: 
     lines = f.readlines()
 for epoch in range (200):
+    validcurves=0
     print("Epoch number " + str(epoch))
     count=0
     trainloss=0
@@ -628,6 +629,7 @@ for epoch in range (200):
                 theta, is_inf = get_pca_inclination(np.asarray(points_x), np.asarray(points_y))
 
                 if not is_inf:
+                    validcurves+=1
                     points_x, points_y = rotate_curve(points_x, points_y, -theta)
                     x=torch.tensor(x)
                     points_x=torch.tensor(points_x)
@@ -636,8 +638,13 @@ for epoch in range (200):
                     runningloss1=loss_function(points_x,x) 
                     runningloss2=loss_function(points_y,y)
                     total360pointloss=(runningloss1+runningloss2)/2
-                    print(total360pointloss)
                     #print(total360pointloss)
+                    #print(total360pointloss)
+                    if(validcurves%100==0):
+                        print("Total number of valid curves is "+str(validcurves)+" but total number of proposed curves is "+str(runningnum))
+                    if (runningnum%100==0):
+                        print(runningnum)
+                        print(total360pointloss)
                     plt.plot(np.r_[points_x, points_x[0]], np.r_[points_y, points_y[0]], color='red')
                     plt.plot(np.r_[x, x[0]], np.r_[y, y[0]], color='blue')
                     plt.show()
@@ -709,13 +716,11 @@ for epoch in range (200):
           points_x, points_y = np.divide(points_x, np.sqrt(np.var(points_x))), np.divide(points_y, np.sqrt(np.var(
                 points_y)))
           points_x=torch.tensor(points_x)
-          x=torch.tensor(x)
           points_y=torch.tensor(points_y)
-          y=torch.tensor(y)
           runningloss1=loss_function2(x,points_x)
           runningloss2=loss_function2(y,points_y)
           total360pointloss=(runningloss1+runningloss2)/2
-          print(total360pointloss)
+          #print(total360pointloss)
     myfinaltrainloss.append(trainloss/itertrain)
     myfinaltestloss.append(testloss/itertrain)
 print(myfinaltrainloss)
