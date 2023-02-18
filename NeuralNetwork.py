@@ -398,7 +398,7 @@ loss_function2=nn.MSELoss()
 model=NeuralNetwork(hidden_layer=256, latentdimensions=5).double().to(device)   
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 batch_size=128
-with open('x_y (1).txt', 'r') as f: 
+with open('file_new.txt', 'r') as f: 
     lines = f.readlines()
 for epoch in range (200):
     validcurves=0
@@ -411,7 +411,7 @@ for epoch in range (200):
     runningnum=0
     random.shuffle(lines)
     for line in lines:
-        total360loss=0
+        total360pointloss=0
         count+=1
         x, y = line.split('=')[0], line.split('=')[1]
         w=line.split('=')
@@ -446,6 +446,8 @@ for epoch in range (200):
         y = [float(i) for i in y if i]
         if(math.isnan(x[30])):
                 continue
+        x=torch.tensor(x)
+        y=torch.tensor(y)
         #Fourier Descriptor extraction will depend on which VAE ends up being the best (the number of inputs needed could vary as a result)
         S=np.zeros(360, dtype='complex_')
         i=0
@@ -539,7 +541,10 @@ for epoch in range (200):
         #print(prediction)
         #print(output_tensor)
         runningnum+=1
-        if(runningnum<2554):
+        if(runningnum%1000==0 and runningnum>0):
+            print(runningnum)
+            print(total360pointloss)
+        if(runningnum<40000):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -551,7 +556,7 @@ for epoch in range (200):
             trainloss+=loss
             #print(prediction)
             #print(output_tensor)
-        elif(runningnum>=2554):
+        elif(runningnum>=40000):
             count=0
             testloss+=loss
             itertest+=1
@@ -632,20 +637,20 @@ for epoch in range (200):
                 if not is_inf:
                     validcurves+=1
                     points_x, points_y = rotate_curve(points_x, points_y, -theta)
-                    x=torch.tensor(x)
+                    #x=torch.tensor(x)
                     points_x=torch.tensor(points_x)
-                    y=torch.tensor(y)
+                    #y=torch.tensor(y)
                     points_y=torch.tensor(points_y)
                     runningloss1=loss_function(points_x,x) 
                     runningloss2=loss_function(points_y,y)
                     total360pointloss=(runningloss1+runningloss2)/2
                     #print(total360pointloss)
                     #print(total360pointloss)
-                    if(validcurves%100==0):
-                        print("Total number of valid curves is "+str(validcurves)+" but total number of proposed curves is "+str(runningnum))
-                    if (runningnum%100==0):
-                        print(runningnum)
-                        print(total360pointloss)
+                   # if(validcurves%100==0):
+                       # print("Total number of valid curves is "+str(validcurves)+" but total number of proposed curves is "+str(runningnum))
+                   # if (runningnum%100==0):
+                    #    print(runningnum)
+                     #   print(total360pointloss)
                     plt.plot(np.r_[points_x, points_x[0]], np.r_[points_y, points_y[0]], color='red')
                     plt.plot(np.r_[x, x[0]], np.r_[y, y[0]], color='blue')
                     plt.show()
@@ -718,12 +723,12 @@ for epoch in range (200):
                 points_y)))
           points_x=torch.tensor(points_x)
           points_y=torch.tensor(points_y)
-          x=torch.tensor(x)
-          y=torch.tensor(y)
+          #x=torch.tensor(x)
+          #y=torch.tensor(y)
           runningloss1=loss_function2(x,points_x)
           runningloss2=loss_function2(y,points_y)
           total360pointloss=(runningloss1+runningloss2)/2
-          print(total360pointloss)
+          #print(total360pointloss)
           plt.plot(points_x, points_y, color='blue')
           plt.plot(x,y,color='red')
           plt.axis('equal')
