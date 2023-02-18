@@ -724,6 +724,10 @@ for epoch in range (200):
           runningloss2=loss_function2(y,points_y)
           total360pointloss=(runningloss1+runningloss2)/2
           print(total360pointloss)
+          plt.plot(points_x, points_y, color='blue')
+          plt.plot(x,y,color='red')
+          plt.axis('equal')
+          plt.show()
     myfinaltrainloss.append(trainloss/itertrain)
     myfinaltestloss.append(testloss/itertrain)
 print(myfinaltrainloss)
