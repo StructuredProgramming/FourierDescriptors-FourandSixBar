@@ -398,7 +398,7 @@ loss_function2=nn.MSELoss()
 model=NeuralNetwork(hidden_layer=256, latentdimensions=5).double().to(device)   
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 batch_size=128
-with open('ISEFDataset.txt', 'r') as f: 
+with open('x_y (1).txt', 'r') as f: 
     lines = f.readlines()
 for epoch in range (200):
     validcurves=0
@@ -432,7 +432,8 @@ for epoch in range (200):
             x1,y1=coords(movingjoint1)
             x2,y2=coords(movingjoint2)
             x3,y3=coords(movingjoint3)
-            x4,y4=coords(movingjoint4)
+            x4=0
+            y4=0
         x, y = x.split(' '), y.split(' ')
         x = [i for i in x if i]
         y = [i for i in y if i]
@@ -717,10 +718,12 @@ for epoch in range (200):
                 points_y)))
           points_x=torch.tensor(points_x)
           points_y=torch.tensor(points_y)
+          x=torch.tensor(x)
+          y=torch.tensor(y)
           runningloss1=loss_function2(x,points_x)
           runningloss2=loss_function2(y,points_y)
           total360pointloss=(runningloss1+runningloss2)/2
-          #print(total360pointloss)
+          print(total360pointloss)
     myfinaltrainloss.append(trainloss/itertrain)
     myfinaltestloss.append(testloss/itertrain)
 print(myfinaltrainloss)
