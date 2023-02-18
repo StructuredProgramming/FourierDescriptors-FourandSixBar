@@ -410,8 +410,8 @@ for epoch in range (200):
     itertest=0
     runningnum=0
     random.shuffle(lines)
+    total360pointloss=0
     for line in lines:
-        total360pointloss=0
         count+=1
         x, y = line.split('=')[0], line.split('=')[1]
         w=line.split('=')
