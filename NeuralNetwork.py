@@ -541,7 +541,7 @@ for epoch in range (200):
         #print(prediction)
         #print(output_tensor)
         runningnum+=1
-        if(runningnum%1000==0 and runningnum>0):
+        if(runningnum%100==0 and runningnum>0):
             print(runningnum)
             print(total360pointloss)
         if(runningnum<40000):
@@ -651,9 +651,10 @@ for epoch in range (200):
                    # if (runningnum%100==0):
                     #    print(runningnum)
                      #   print(total360pointloss)
-                    plt.plot(np.r_[points_x, points_x[0]], np.r_[points_y, points_y[0]], color='red')
-                    plt.plot(np.r_[x, x[0]], np.r_[y, y[0]], color='blue')
-                    plt.show()
+                    if(runningnum%100==0):
+                        plt.plot(np.r_[points_x, points_x[0]], np.r_[points_y, points_y[0]], color='red')
+                        plt.plot(np.r_[x, x[0]], np.r_[y, y[0]], color='blue')
+                        plt.show()
         else:  
           predictions=prediction.detach().numpy()
           j_0=(0,0)
@@ -729,10 +730,12 @@ for epoch in range (200):
           runningloss2=loss_function2(y,points_y)
           total360pointloss=(runningloss1+runningloss2)/2
           #print(total360pointloss)
-          plt.plot(points_x, points_y, color='blue')
-          plt.plot(x,y,color='red')
-          plt.axis('equal')
-          plt.show()
+          if(runningnum%100==0):
+              print(runningnum)
+              plt.plot(points_x, points_y, color='blue')
+              plt.plot(x,y,color='red')
+              plt.axis('equal')
+              plt.show()
     myfinaltrainloss.append(trainloss/itertrain)
     myfinaltestloss.append(testloss/itertrain)
 print(myfinaltrainloss)
