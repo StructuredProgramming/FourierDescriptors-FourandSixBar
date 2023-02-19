@@ -32,7 +32,7 @@ from itertools import combinations
 from PIL import Image as PImage
 np.set_printoptions(threshold=sys.maxsize)
 np.set_printoptions(suppress=True)
-device="cpu"
+device="cuda"
 def calculateloss(a,b):
     return nn.MSELoss(a,b)
 def is_simple(tpMat):
@@ -541,9 +541,10 @@ for epoch in range (200):
         #print(prediction)
         #print(output_tensor)
         runningnum+=1
-        if(runningnum%100==0 and runningnum>0):
-            print(runningnum)
-            print(total360pointloss)
+        #print(total360pointloss)
+        #if(runningnum%100==0 and runningnum>0):
+         #   print(runningnum)
+          #  print(total360pointloss)
         if(runningnum<40000):
             optimizer.zero_grad()
             loss.backward()
@@ -561,7 +562,8 @@ for epoch in range (200):
             testloss+=loss
             itertest+=1
         if(len(w)==6):
-            predictions=prediction.detach().numpy()
+            #print("Entered")
+            predictions=prediction.cpu().detach().numpy()
             j_0=(0,0)
             j_1=(predictions[0],predictions[4])
             j_2=(predictions[1],predictions[5])
@@ -643,6 +645,8 @@ for epoch in range (200):
                     points_y=torch.tensor(points_y)
                     runningloss1=loss_function(points_x,x) 
                     runningloss2=loss_function(points_y,y)
+                    #print(runningloss1)
+                    #print(runningloss2)
                     total360pointloss=(runningloss1+runningloss2)/2
                     #print(total360pointloss)
                     #print(total360pointloss)
@@ -651,12 +655,16 @@ for epoch in range (200):
                    # if (runningnum%100==0):
                     #    print(runningnum)
                      #   print(total360pointloss)
-                    if(runningnum%100==0):
+                    if(validcurves%100==0):
+                        print("Total curves seen was "+str(runningnum)+" but total number of valid curves was "+str(validcurves))
+                        print(total360pointloss)
                         plt.plot(np.r_[points_x, points_x[0]], np.r_[points_y, points_y[0]], color='red')
                         plt.plot(np.r_[x, x[0]], np.r_[y, y[0]], color='blue')
                         plt.show()
         else:  
-          predictions=prediction.detach().numpy()
+          #print("Entered 2")
+          #print(len(w))
+          predictions=prediction.cpu().detach().numpy()
           j_0=(0,0)
           j_1=(predictions[0],predictions[1])
           j_2=(1,0)
@@ -672,16 +680,16 @@ for epoch in range (200):
           longest = max(1, l_1, l_2, l_3)
           pq = total - shortest - longest
 
-        if shortest + longest <= pq:
-          l_1 = np.linalg.norm(np.array(j_1) - np.array(j_0))
-          l_2 = np.linalg.norm(np.array(j_2) - np.array(j_1))
-          l_3 = np.linalg.norm(np.array(j_3) - np.array(j_2))
+          if shortest + longest <= pq:
+            l_1 = np.linalg.norm(np.array(j_1) - np.array(j_0))
+            l_2 = np.linalg.norm(np.array(j_2) - np.array(j_1))
+            l_3 = np.linalg.norm(np.array(j_3) - np.array(j_2))
     
-          if min(1, l_1, l_2, l_3) == 1 or min(1, l_1, l_2, l_3) == l_2:
-            continue
+            if min(1, l_1, l_2, l_3) == 1 or min(1, l_1, l_2, l_3) == l_2:
+              continue
 
-          elif min(1, l_1, l_2, l_3) == l_1:
-            tpTest = np.matrix([
+            elif min(1, l_1, l_2, l_3) == l_1:
+              tpTest = np.matrix([
             [1, -1, 1, 0, 0],
             [1, 2, 0, 1, 1],
             [1, 0, 1, 1, 0],
@@ -689,13 +697,13 @@ for epoch in range (200):
             [0, 1, 0, 1, 2]
         ])
 
-            rMatTest = np.array([[0, 1.0, 0, 0, 0],
+              rMatTest = np.array([[0, 1.0, 0, 0, 0],
                              [0, 0, 0, 0, 0],
                              [0, 0, 0, 0, 0],
                              [0, 0, 0, 0, 0],
                              [0, 0, 0, 0, 0]])
-          else:
-            tpTest = np.matrix([
+            else:
+              tpTest = np.matrix([
             [1, 1, 1, 0, 0],
             [1, 2, 0, 1, 1],
             [1, 0, 1, -1, 0],
@@ -703,39 +711,41 @@ for epoch in range (200):
             [0, 1, 0, 1, 2]
         ])
 
-            rMatTest = np.array([[0, 0, 0, 0, 0],
+              rMatTest = np.array([[0, 0, 0, 0, 0],
                              [0, 0, 0, 0, 0],
                              [0, 0, 0, 1.0, 0],
                              [0, 0, 0, 0, 0],
                              [0, 0, 0, 0, 0]])
-          points_x, points_y = 0, 0
+            points_x, points_y = 0, 0
 
-          posInit = np.array([j_0, j_1, j_3, j_2, j_4])
-          jdxTest1, _, _ = compute_curve_simple(tpTest, posInit,rMatTest)
+            posInit = np.array([j_0, j_1, j_3, j_2, j_4])
+            jdxTest1, _, _ = compute_curve_simple(tpTest, posInit,rMatTest)
 
-          if len(jdxTest1[4, :, 0]) < 360:
-              continue
+            if len(jdxTest1[4, :, 0]) < 360:
+               continue
 
-          points_x, points_y = np.asarray(jdxTest1[4, :, 0], dtype=np.float32), np.asarray(jdxTest1[4, :, 1])
+            points_x, points_y = np.asarray(jdxTest1[4, :, 0], dtype=np.float32), np.asarray(jdxTest1[4, :, 1])
 
-          points_x, points_y = np.subtract(points_x, np.mean(points_x)), np.subtract(points_y, np.mean(points_y))
+            points_x, points_y = np.subtract(points_x, np.mean(points_x)), np.subtract(points_y, np.mean(points_y))
 
-          points_x, points_y = np.divide(points_x, np.sqrt(np.var(points_x))), np.divide(points_y, np.sqrt(np.var(
+            points_x, points_y = np.divide(points_x, np.sqrt(np.var(points_x))), np.divide(points_y, np.sqrt(np.var(
                 points_y)))
-          points_x=torch.tensor(points_x)
-          points_y=torch.tensor(points_y)
+            points_x=torch.tensor(points_x)
+            points_y=torch.tensor(points_y)
           #x=torch.tensor(x)
           #y=torch.tensor(y)
-          runningloss1=loss_function2(x,points_x)
-          runningloss2=loss_function2(y,points_y)
-          total360pointloss=(runningloss1+runningloss2)/2
+            runningloss1=loss_function2(x,points_x)
+            runningloss2=loss_function2(y,points_y)
+            total360pointloss=(runningloss1+runningloss2)/2
           #print(total360pointloss)
-          if(runningnum%100==0):
-              print(runningnum)
-              plt.plot(points_x, points_y, color='blue')
-              plt.plot(x,y,color='red')
-              plt.axis('equal')
-              plt.show()
+            if(runningnum%100==0):
+                print("Outputting here")
+                print(total360pointloss)
+                print(runningnum)
+                plt.plot(points_x, points_y, color='blue')
+                plt.plot(x,y,color='red')
+                plt.axis('equal')
+                plt.show()
     myfinaltrainloss.append(trainloss/itertrain)
     myfinaltestloss.append(testloss/itertrain)
 print(myfinaltrainloss)
