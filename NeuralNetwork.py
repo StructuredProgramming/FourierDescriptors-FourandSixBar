@@ -395,11 +395,12 @@ myfinaltrainloss=[]
 myfinaltestloss=[]
 vae.load_state_dict(torch.load("Weights120-22.txt", map_location=torch.device('cpu')))
 loss_function2=nn.MSELoss()
-model=NeuralNetwork(hidden_layer=256, latentdimensions=5).double().to(device)   
+model=NeuralNetwork(hidden_layer=1280, latentdimensions=5).double().to(device)   
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 batch_size=128
 with open('file_new.txt', 'r') as f: 
     lines = f.readlines()
+completeloss=0
 for epoch in range (200):
     validcurves=0
     print("Epoch number " + str(epoch))
@@ -411,7 +412,10 @@ for epoch in range (200):
     runningnum=0
     random.shuffle(lines)
     total360pointloss=0
+    numiterations=0
+    epochloss=0
     for line in lines:
+        numiterations+=1
         count+=1
         x, y = line.split('=')[0], line.split('=')[1]
         w=line.split('=')
@@ -648,6 +652,7 @@ for epoch in range (200):
                     #print(runningloss1)
                     #print(runningloss2)
                     total360pointloss=(runningloss1+runningloss2)/2
+                    epochloss+=total360pointloss
                     #print(total360pointloss)
                     #print(total360pointloss)
                    # if(validcurves%100==0):
@@ -655,12 +660,12 @@ for epoch in range (200):
                    # if (runningnum%100==0):
                     #    print(runningnum)
                      #   print(total360pointloss)
-                    if(validcurves%100==0):
-                        print("Total curves seen was "+str(runningnum)+" but total number of valid curves was "+str(validcurves))
-                        print(total360pointloss)
-                        plt.plot(np.r_[points_x, points_x[0]], np.r_[points_y, points_y[0]], color='red')
-                        plt.plot(np.r_[x, x[0]], np.r_[y, y[0]], color='blue')
-                        plt.show()
+                    #if(validcurves%100==0):
+                     #   print("Total curves seen was "+str(runningnum)+" but total number of valid curves was "+str(validcurves))
+                      #  print(total360pointloss)
+                       # plt.plot(np.r_[points_x, points_x[0]], np.r_[points_y, points_y[0]], color='red')
+                        #plt.plot(np.r_[x, x[0]], np.r_[y, y[0]], color='blue')
+                        #plt.show()
         else:  
           #print("Entered 2")
           #print(len(w))
@@ -737,16 +742,20 @@ for epoch in range (200):
             runningloss1=loss_function2(x,points_x)
             runningloss2=loss_function2(y,points_y)
             total360pointloss=(runningloss1+runningloss2)/2
+            epochloss+=total360pointloss
           #print(total360pointloss)
-            if(runningnum%100==0):
-                print("Outputting here")
-                print(total360pointloss)
-                print(runningnum)
-                plt.plot(points_x, points_y, color='blue')
-                plt.plot(x,y,color='red')
-                plt.axis('equal')
-                plt.show()
-    myfinaltrainloss.append(trainloss/itertrain)
-    myfinaltestloss.append(testloss/itertrain)
-print(myfinaltrainloss)
-print(myfinaltestloss)
+            #if(runningnum%100==0):
+             #   print("Outputting here")
+              #  print(total360pointloss)
+               # print(runningnum)
+                #plt.plot(points_x, points_y, color='blue')
+                #plt.plot(x,y,color='red')
+                #plt.axis('equal')
+                #plt.show()
+   # myfinaltrainloss.append(trainloss/itertrain)
+   # myfinaltestloss.append(testloss/itertrain)
+   if(epoch>20):
+      completeloss+=epochloss/numiterations
+print("Final average loss is "+str(completeloss/180))
+#print(myfinaltrainloss)
+#print(myfinaltestloss)
