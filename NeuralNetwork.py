@@ -410,7 +410,7 @@ for epoch in range (200):
     itertrain=0
     itertest=0
     runningnum=0
-    random.shuffle(lines)
+    #random.shuffle(lines)
     total360pointloss=0
     numiterations=0
     epochloss=0
