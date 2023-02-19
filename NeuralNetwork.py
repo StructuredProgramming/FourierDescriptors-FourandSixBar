@@ -416,6 +416,8 @@ for epoch in range (200):
     epochloss=0
     for line in lines:
         numiterations+=1
+        if(numiterations%1000==0):
+            print("Coupler curve number "+str(numiterations))
         count+=1
         x, y = line.split('=')[0], line.split('=')[1]
         w=line.split('=')
@@ -754,8 +756,9 @@ for epoch in range (200):
                 #plt.show()
    # myfinaltrainloss.append(trainloss/itertrain)
    # myfinaltestloss.append(testloss/itertrain)
-   if(epoch>20):
+    if(epoch>20):
       completeloss+=epochloss/numiterations
+    print(epochloss/numiterations)
 print("Final average loss is "+str(completeloss/180))
 #print(myfinaltrainloss)
 #print(myfinaltestloss)
